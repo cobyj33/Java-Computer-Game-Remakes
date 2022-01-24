@@ -6,6 +6,7 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
@@ -19,7 +20,7 @@ import javax.swing.event.AncestorEvent;
 import main.Main;
 import main.ScreenManager;
 
-public class MineSweeper extends JPanel implements MouseListener, MouseMotionListener {
+public class MineSweeper extends JPanel {
 	int[][] board;
 	int[][] visibleBoard;
 	int boardRows = 10;
@@ -31,6 +32,9 @@ public class MineSweeper extends JPanel implements MouseListener, MouseMotionLis
 	BottomBar bottomBar;
 	HashMap<Integer, Color> colorMap;
 	ScreenManager manager;
+	
+	Mouse mouse;
+	
 	public static final int BLANK = -1, MINE = -2, FLAG = -3, COVERED = -4;
 
 	public MineSweeper(ScreenManager manager) {
@@ -48,11 +52,12 @@ public class MineSweeper extends JPanel implements MouseListener, MouseMotionLis
 		colorMap.put(FLAG, Color.BLACK);
 		colorMap.put(COVERED, new Color(50, 50, 50));
 		
-		addMouseListener(this);
-		addMouseMotionListener(this);
+		mouse = new Mouse();
+		addMouseListener(mouse);
+		addMouseMotionListener(mouse);
+		
 		inGame = true;
 		constructBoard();
-		
 		addAncestorListener(new main.AncestorAdapter() {
 			public void ancestorAdded(AncestorEvent event) {
 				requestFocus();
@@ -225,53 +230,30 @@ public class MineSweeper extends JPanel implements MouseListener, MouseMotionLis
 		
 	}
 
-	@Override
-	public void mouseDragged(MouseEvent e) {
-		mousePressed(e);
+	class Mouse extends MouseAdapter {
+		Mouse() {} 
 		
-	}
-
-	@Override
-	public void mouseMoved(MouseEvent e) {
-		
-	}
-
-	@Override
-	public void mouseClicked(MouseEvent e) {
-		
-	}
-
-	@Override
-	public void mousePressed(MouseEvent e) {
-		int row = e.getY() / squareSize;
-		int col = e.getX() / squareSize;
-		
-		if (board[row][col] != visibleBoard[row][col]) {
-			uncover(row, col);
+		@Override
+		public void mouseDragged(MouseEvent e) {
+			mousePressed(e);
 		}
-		System.out.println("selected: " + board[row][col] + " Row: " + row + " Col: " + col);
 		
-		if (board[row][col] == MINE || covered == numOfMines) {
-			endGame();
+		@Override
+		public void mousePressed(MouseEvent e) {
+			int row = e.getY() / squareSize;
+			int col = e.getX() / squareSize;
+		
+			if (board[row][col] != visibleBoard[row][col]) {
+				uncover(row, col);
+			}
+			System.out.println("selected: " + board[row][col] + " Row: " + row + " Col: " + col);
+		
+			if (board[row][col] == MINE || covered == numOfMines) {
+				endGame();
+			}
+			repaint();
 		}
-		repaint();
-	}
-
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
 		
-	}
-
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
 		
 	}
 	
